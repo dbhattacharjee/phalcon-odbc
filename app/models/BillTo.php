@@ -2,12 +2,17 @@
 namespace FutureFoam\Model;
 use Phalcon\Mvc\Model;
 
-class Customer extends Model
+class BillTo extends Model
 {
     /**
      * @Primary
      * @Identity
      * @Column(type="integer", nullable=false)
+     */
+    public $BillToID;
+    
+    /**
+     * @Column(type="interger", length=4, nullable=true)
      */
     public $CustNum;
 
@@ -22,49 +27,14 @@ class Customer extends Model
     public $Address2;
     
     /**
-     * @Column(type="decimal", length=17, nullable=true)
-     */
-    public $Balance;
-    
-    /**
      * @Column(type="string", length=50, nullable=true)
      */
     public $City;
     
     /**
-     * @Column(type="string", length=160, nullable=true)
-     */
-    public $Comments;
-    
-    /**
      * @Column(type="string", length=60, nullable=true)
      */
     public $Contact;
-    
-    /**
-     * @Column(type="string", length=60, nullable=true)
-     */
-    public $Country;
-    
-    /**
-     * @Column(type="decimal", length=17, nullable=true)
-     */
-    public $CreditLimit;
-    
-    /**
-     * @Column(type="decimal", length=4, nullable=true)
-     */
-    public $Discount;
-    
-    /**
-     * @Column(type="string", length=100, nullable=true)
-     */
-    public $EmailAddress;
-    
-    /**
-     * @Column(type="string", length=40, nullable=true)
-     */
-    public $Fax;
     
     /**
      * @Column(type="string", length=60, nullable=true)
@@ -82,30 +52,21 @@ class Customer extends Model
     public $PostalCode;
     
     /**
-     * @Column(type="string", length=8, nullable=true)
-     */
-    public $SalesRep;
-    
-    /**
      * @Column(type="string", length=40, nullable=true)
      */
     public $State;
     
-    /**
-     * @Column(type="string", length=40, nullable=false)
-     */
-    public $Terms;
     
     public function initialize()
     {
-        $this->setSource("Customer");
-        //$this->skipAttributesOnCreate(array('CustNum'));
-        $this->hasMany(
+        $this->setSource("BillTo");
+        
+        $this->belongsTo(
             "CustNum",
-            "FutureFoam\\Model\\BillTo",
+            "FutureFoam\\Model\\Customer",
             "CustNum",
             [
-             'alias' => 'Bills',
+             'alias' => 'Customer',
             ]
         );
     }

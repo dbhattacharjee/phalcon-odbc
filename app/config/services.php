@@ -8,6 +8,9 @@ use Phalcon\Mvc\Model\Metadata\Memory as MetaDataAdapter;
 use Phalcon\Session\Adapter\Files as SessionAdapter;
 use Phalcon\Flash\Direct as Flash;
 
+use Phalcon\Events\Event;
+use Phalcon\Events\Manager as EventsManager;
+
 /**
  * Shared configuration service
  */
@@ -62,17 +65,27 @@ $di->setShared('view', function () {
  */
 $di->setShared('db', function () {
     $config = $this->getConfig();
-
+    putenv("ODBCINI=/etc/odbc.ini");
 //    $class = 'Phalcon\Db\Adapter\Pdo\\' . $config->database->adapter;
 //    $connection = new $class([
 //        'host'     => $config->database->host,
 //        'username' => $config->database->username,
 //        'password' => $config->database->password,
 //        'dbname'   => $config->database->dbname,
-//        'charset'  => $config->database->charset
+//        'charset'  => $config->database->charset,
+//        'dsn'  => $config->database->dsn
 //    ]);
 //
 //    return $connection;
+    $eventsManager = new EventsManager();
+
+$eventsManager->attach(
+    "db:afterQuery",
+    function (Event $event, $connection) {
+        //echo 'Q:=>'.$connection->getSQLStatement().'<br/>';
+    }
+);
+
     $class = 'FutureFoam\PhalconPHP\PROGRESSQQL\Adapter\\' . $config->database->adapter;
     try{
     $connection = new $class([
@@ -86,7 +99,7 @@ $di->setShared('db', function () {
     }  catch (\Exception $e) {
         echo 'E:'.$e->getMessage();die;
     }
-
+    $connection->setEventsManager($eventsManager);
     return $connection;
 });
 

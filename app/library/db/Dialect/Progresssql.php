@@ -128,7 +128,10 @@ class Progresssql extends \Phalcon\Db\Dialect //implements \Phalcon\Db\DialectIn
         $limitValue;
         $number;
         $offset;
-
+        
+//        echo '<pre>';
+//        print_r(func_get_args());
+//        echo '<br>***<br/>';
 		
         if (!is_array($definition)) {
             throw new Phalcon\Db\Exception("Invalid SELECT definition");
@@ -435,11 +438,11 @@ class Progresssql extends \Phalcon\Db\Dialect //implements \Phalcon\Db\DialectIn
             }
         }
 		*/
-		
+		$sql = str_replace(':APR0', 5, $sql);
 		// at this point we can do some "magic" ...
 		$sql = $this->do_translate($sql);
 		
-		// echo $sql.'<br><br>'; 
+		 //echo $sql.'<br><br>'; 
 		// echo '<pre>'; print_r($definition); echo '</pre><br><br>';
 		return $sql;
 	}

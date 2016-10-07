@@ -98,6 +98,7 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
              * By checking every column type we convert it to a Phalcon\Db\Column
              */
             $columnType = $field['COLTYPE'];
+            
 
             $autoIncrement = false;
             switch ($field['COLTYPE']) {
@@ -172,13 +173,14 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
              * Check if the field is primary key
              */
             if (isset($primaryKeys[$field['COL']])) {
+                $autoIncrement = true;
                 $definition["primary"] = true;
             }
 
             /**
              * Check if the column allows null values
              */
-            $definition["notNull"] = ($field['NULLFLAG'] == 'N');
+            $definition["notNull"] = $field['NULLFLAG'] == 'N' ? true : false;
 
             /*
              */
@@ -192,13 +194,14 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
             if ($autoIncrement) {
                 $definition["autoIncrement"] = true;
             }
+            $definition['default'] = $field['DFLT_VALUE'];
+            $definition['schemaName'] = 'PUB';
 
             /**
              * Every route is stored as a Phalcon\Db\Column
              */
             $columnName = $field['COL'];
             //echo $columnName  . PHP_EOL;
-
             $columns[] = new \Phalcon\Db\Column($columnName, $definition);
             $oldColumn = $columnName;
         }
@@ -208,7 +211,6 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
     }
 
     public function connect(array $descriptor = null) {
-        putenv("ODBCINI=/etc/odbc.ini");
         if (strpos($descriptor['host'], ';') !== false) {
             $tmp = explode(';', $descriptor['host']);
             $descriptor['failover'] = $tmp[1];
@@ -273,9 +275,33 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
             $sql = str_replace('"', '', $sql);
         }
         $sql = str_replace('numrows', 'as "numrows"', $sql);
-        echo $sql.'<br><br>';
+        //echo $sql.'<br><br>';
+        
+        if(stripos($sql, 'INSERT') !==false) {
+            //echo $this->interpolateQuery($sql, $bindParams);
+            //echo '<pre>';print_r(parent::query($sql, $bindParams, $bindTypes));
+        }
         
         return parent::query($sql, $bindParams, $bindTypes);
+    }
+    
+    public static function interpolateQuery($query, $params) {
+        $keys = array();
+
+        # build a regular expression for each parameter
+        foreach ($params as $key => $value) {
+            if (is_string($key)) {
+                $keys[] = '/:' . $key . '/';
+            } else {
+                $keys[] = '/[?]/';
+            }
+        }
+
+        $query = preg_replace($keys, $params, $query, 1, $count);
+
+        #trigger_error('replaced '.$count.' keys');
+
+        return $query;
     }
 
     /**
@@ -297,7 +323,7 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
     //insert miss parameters, need to do this
     // public function executePrepared($statement, $placeholders, $dataTypes)  // 1.x
     public function executePrepared(\PDOStatement $statement, array $placeholders, $dataTypes) {  // 2.x
-
+        //echo $statement->queryString.'<br/>';
         /*
           $sql = ($statement->queryString);
           if (substr($sql,0,6)=='UPDATE' || substr($sql,0,6)=='INSERT') {
@@ -512,7 +538,7 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
         $escapedFields;
         $field;
         $insertSql;
-
+        
         if (!is_array($values)) {
             throw new \Phalcon\Db\Exception("The second parameter for insert isn't an Array");
         }
@@ -563,7 +589,7 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
         if (false) { //globals_get("db.escape_identifiers") {
             $escapedTable = $this->escapeIdentifier($table);
         } else {
-            $escapedTable = $table;
+            $escapedTable = 'PUB.'.$table;
         }
 
         /**
@@ -586,7 +612,7 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
             $insertSql = "INSERT INTO " . $escapedTable . " VALUES (" . $joinedValues . ")";
         }
 
-        $insertSql = 'SET NOCOUNT ON; ' . $insertSql . '; SELECT CAST(SCOPE_IDENTITY() as int) as newid';
+        //$insertSql = 'SET NOCOUNT ON; ' . $insertSql . '; SELECT CAST(SCOPE_IDENTITY() as int) as newid';
 
 
         /**
@@ -713,6 +739,7 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
         } else {
             $updateSql = "UPDATE " . $escapedTable . " SET " . $setClause;
         }
+        
 
         /**
          * Perform the update via PDO::execute
@@ -736,11 +763,12 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
         if (false) { // globals_get("db.escape_identifiers") {
             $escapedTable = $this->escapeIdentifier($table);
         } else {
-            $escapedTable = $table;
+            $escapedTable = 'PUB.'.$table;
         }
 
 
         if (!empty($whereCondition)) {
+            $whereCondition = str_replace(array('[',']'), '', $whereCondition);
             $sql = "DELETE FROM " . $escapedTable . " WHERE " . $whereCondition;
         } else {
             $sql = "DELETE FROM " . $escapedTable;

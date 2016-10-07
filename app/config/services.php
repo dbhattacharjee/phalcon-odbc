@@ -82,7 +82,7 @@ $di->setShared('db', function () {
 $eventsManager->attach(
     "db:afterQuery",
     function (Event $event, $connection) {
-        //echo 'Q:=>'.$connection->getSQLStatement().'<br/>';
+        echo 'Q : =>'.$connection->getSQLStatement().'<br/><BR/>';
     }
 );
 

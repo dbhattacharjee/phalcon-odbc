@@ -263,7 +263,7 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
                         $offset = count($countString);
                         $pos = strpos($sql, 'SELECT', $offset) + 7; //'SELECT ';
                         if (stripos($sql, 'SELECT DISTINCT') === false) {
-                            $sql = substr($sql, 0, $pos) . 'TOP 100 PERCENT ' . substr($sql, $pos);
+                            $sql = substr($sql, 0, $pos) . ' ' . substr($sql, $pos);
                         }
                     }
                 }
@@ -275,11 +275,14 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
             $sql = str_replace('"', '', $sql);
         }
         $sql = str_replace('numrows', 'as "numrows"', $sql);
-        //echo $sql.'<br><br>';
+        $sql = str_replace('[rowcount]', '"rowcount"', $sql);
+        echo $sql.'<br><br>';
+        print_r($bindParams);
         
-        if(stripos($sql, 'INSERT') !==false) {
-            //echo $this->interpolateQuery($sql, $bindParams);
-            //echo '<pre>';print_r(parent::query($sql, $bindParams, $bindTypes));
+        if(stripos($sql, 'APL') !==false) {
+            foreach($bindParams as $key=>$val) {
+                $sql = str_replace(':'.$key, $val, $sql);
+            }
         }
         
         return parent::query($sql, $bindParams, $bindTypes);
@@ -323,7 +326,8 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
     //insert miss parameters, need to do this
     // public function executePrepared($statement, $placeholders, $dataTypes)  // 1.x
     public function executePrepared(\PDOStatement $statement, array $placeholders, $dataTypes) {  // 2.x
-        //echo $statement->queryString.'<br/>';
+        //echo '**Statement**'.$statement->queryString.'<br/>';
+        
         /*
           $sql = ($statement->queryString);
           if (substr($sql,0,6)=='UPDATE' || substr($sql,0,6)=='INSERT') {
@@ -353,6 +357,8 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
                 $used_pp = true;
                 $_placeholders[intval(substr($pk, 1))] = $pv;
             }
+            //CUSTOMCODE
+            $_placeholders[intval(str_ireplace(array('APR', 'APL'), '', $pk))] = $pv;
         }
         $placeholders = $_placeholders;
 
@@ -375,7 +381,6 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
 
         // fine fix PhalconPHP 2.0.4+ ... 
         // $placeholders = array( ':0' => '/' ); $dataTypes    = array( ':0' => \Phalcon\Db\Column::BIND_PARAM_STR );
-
         if (count($placeholders) != count($dataTypes)) {
             if (count($dataTypes) > count($placeholders)) {
                 array_splice($dataTypes, count($placeholders));
@@ -418,8 +423,6 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
             }
             // fine fix PhalconPHP 2.0.4+ ...
         }
-
-
         // fix PhalconPHP 2.0.4+ ... 
         if ($used_pp) {
             $_placeholders = $placeholders;
@@ -466,7 +469,6 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
         if (!is_array($placeholders)) {
             throw new \Phalcon\Db\Exception("Placeholders must be an array");
         }
-
         foreach ($placeholders as $wildcard => $value) {
             $parameter = '';
 
@@ -501,7 +503,7 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
                 } else {
                     $castValue = $value;
                 }
-
+                
                 /**
                  * 1024 is ignore the bind type
                  */

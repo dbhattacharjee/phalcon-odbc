@@ -340,7 +340,7 @@ class Progresssql extends \Phalcon\Db\Dialect //implements \Phalcon\Db\DialectIn
 				}
             }
             if (count($orderItems)) {
-                $sqlOrder =  " ORDER BY  " . join(", ", $orderItems);
+                $sqlOrder =  " ORDER BY /*rdr*/ " . join(", ", $orderItems);
             }
 
             if ($nolock) {
@@ -360,8 +360,7 @@ class Progresssql extends \Phalcon\Db\Dialect //implements \Phalcon\Db\DialectIn
 		$limitValue = isset( $definition["limit"] ) ? $definition["limit"] : null;
 		if (isset($limitValue)) {
 			if (is_array($limitValue)) {
-				//$number = str_replace(':APL', '', $limitValue["number"]['value']);
-                                $number = $limitValue["number"]['value'];
+				$number = str_replace(':APL', '', $limitValue["number"]['value']);
                                 if(!$number) {
                                     $number = 1;
                                 }
@@ -439,7 +438,7 @@ class Progresssql extends \Phalcon\Db\Dialect //implements \Phalcon\Db\DialectIn
             }
         }
 		*/
-		
+		$sql = str_replace(':APR0', 5, $sql);
 		// at this point we can do some "magic" ...
 		$sql = $this->do_translate($sql);
 		

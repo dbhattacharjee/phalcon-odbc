@@ -48,7 +48,7 @@ class IndexController extends ControllerBase
 //            }
 //        }
         
-        //PENDING - DETAILED SEARCH, NESTED MODELS
+        //PENDING - DETAILED SEARCH
 
         //print_r($customer->Name);
         //print_r(get_class_methods($customer));
@@ -66,24 +66,59 @@ class IndexController extends ControllerBase
 //            
 //            $billTo = new \FutureFoam\Model\BillTo();
 //            $billTo->BillToID = $billToResult['max'] + 1;
-//            $billTo->CustNum = 5;
+//            $billTo->CustNum = 55;
+//            $billTo->Name = 'Name : '.$billTo->CustNum.'--'.rand();
+//            $billTo->Contact = 'Contact :'. $billTo->CustNum.'--'.rand();
 //            if(!$billTo->save()) {
 //                foreach($billTo->getMessages() as $message) {
 //                    echo $message.'<br/>';
 //                }
 //            }
-        //Nested Model:
-        $customer = \FutureFoam\Model\Customer::findFirst(5);
-        //echo '<pre>';
-        $a = $customer->Bills;
-        foreach($a as $v) {
-            echo $v->Name.'--'.$v->Contact.PHP_EOL;
-        }
-        //print_r($customer->Bills);
-//        foreach ($customer->Bills as $billTo) {
-//            print_r($billTo->Contact);
+        //Nested Model: --- DONE
+//        $customer = \FutureFoam\Model\Customer::findFirst(55);
+//        //echo '<pre>';
+//        $a = $customer->Bills;
+//        foreach($a as $v) {
+//            echo $v->Name.'--'.$v->Contact.PHP_EOL;
 //        }
-//        echo '<pre>';print_r($customer);die;
+//        //print_r($customer->Bills);
+////        foreach ($customer->Bills as $billTo) {
+////            print_r($billTo->Contact);
+////        }
+////        echo '<pre>';print_r($customer);die;
+        
+        /************** VARIOUS SEARCH STRATEGIES ***************/
+        
+//        $customer = \FutureFoam\Model\Customer::find('City = "name"');
+//        $customer = \FutureFoam\Model\Customer::find(array(
+//                    "CustNum = '1'",
+//                    "order" => "CustNum",
+//                    "limit" => 10
+//        ));
+        
+//        $customers = \FutureFoam\Model\Customer::query()
+//                    ->where("City = :city:")
+//                    ->andWhere("CustNum < 2000")
+//                    ->bind(["city" => "mechanical"])
+//                    ->order("City")
+//                    ->execute();
+//           $customers = \FutureFoam\Model\Customer::find(
+//                           [
+//                            "City = :name: AND CustNum = :type:",
+//                            "bind" => [
+//                                "name" => "Robotina",
+//                                "type" => "maid",
+//                            ],
+//                        ]
+//        );
+//        $group = \FutureFoam\Model\Customer::count(
+//                        [
+//                            "group" => "City",
+//                            "order" => "CustNum",
+//                        ]
+//        );
+
+//PENDING : NESTED MODEL - SAVE & UPDATE
         echo PHP_EOL;
         die('script completed');
     }

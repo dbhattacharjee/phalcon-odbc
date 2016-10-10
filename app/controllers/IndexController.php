@@ -119,7 +119,38 @@ class IndexController extends ControllerBase
 //        );
 
 //PENDING : NESTED MODEL - SAVE & UPDATE
+        
+            $result = $this->db->query("SELECT MAX(CustNum) 'max' FROM PUB.Customer");
+            $result->setFetchMode(Phalcon\Db::FETCH_ASSOC);
+            $custNumResul = $result->fetch();
+            $result = $this->db->query("SELECT MAX(BillToId) 'max' FROM PUB.BillTo");
+            $result->setFetchMode(Phalcon\Db::FETCH_ASSOC);
+            $billToResult = $result->fetch();
+            
+            $bills = [];
+            
+            $customer = new \FutureFoam\Model\Customer();
+            $billTo = new \FutureFoam\Model\BillTo();
+            $customer->CustNum = $custNumResul['max'] + 1;
+            $customer->Name = 'Q3123';
+            $customer->EmailAddress = 'test123@example.com';
+            $customer->Fax = '12345';
+            
+            
+            $billTo->BillToID = $billToResult['max'] + 1;
+            $billTo->CustNum = 123;
+            $billTo->Name = 'Name : '.$billTo->CustNum.'--'.rand();
+            $billTo->Contact = 'Contact :'. $billTo->CustNum.'--'.rand();
+            
+            $customer->Bills = array($billTo);
+            
+            if(!$customer->save()) {
+                foreach($customer->getMessages() as $message) {
+                    echo $message.'<br/>';
+                }
+            }        
         echo PHP_EOL;
+        /*****NEED TO REMOVE HARCODED "PUB." *****/
         die('script completed');
     }
 

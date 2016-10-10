@@ -99,6 +99,7 @@ class Customer extends Model
     public function initialize()
     {
         $this->setSource("Customer");
+        $this->getModelsManager()->setModelSchema($this, 'PUB');
         //$this->skipAttributesOnCreate(array('CustNum'));
         $this->hasMany(
             "CustNum",

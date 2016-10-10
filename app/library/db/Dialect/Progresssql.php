@@ -669,7 +669,7 @@ echo 'dropIndex';
         $sql = "select COUNT(*) from sysprogress.SYSTABLES WHERE tbl='".$tableName."'";
 
         if ($schemaName) {
-            $sql = $sql . "AND TABLE_SCHEMA = '$schemaName'";
+            $sql = $sql . "AND OWNER = '$schemaName'";
         }
         return $sql;
     }

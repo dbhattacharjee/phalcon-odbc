@@ -5,9 +5,11 @@ class IndexController extends ControllerBase
 
     public function indexAction()
     {
+//        $customer = \FutureFoam\Model\BillTo::findFirst(55);
+//        die;
         /*UPDATE --- DONE*/
 //        if($customer = \FutureFoam\Model\Customer::findFirst(3)) {
-//            $customer->Name = 'Q3123';
+//            $customer->Name = 'Q3123455';
 //            $customer->EmailAddress = 'test@example.com';
 //            $customer->Fax = '1234';
 //            if(!$customer->save()) {
@@ -120,35 +122,43 @@ class IndexController extends ControllerBase
 
 //PENDING : NESTED MODEL - SAVE & UPDATE
         
-            $result = $this->db->query("SELECT MAX(CustNum) 'max' FROM PUB.Customer");
-            $result->setFetchMode(Phalcon\Db::FETCH_ASSOC);
-            $custNumResul = $result->fetch();
-            $result = $this->db->query("SELECT MAX(BillToId) 'max' FROM PUB.BillTo");
-            $result->setFetchMode(Phalcon\Db::FETCH_ASSOC);
-            $billToResult = $result->fetch();
+//            $result = $this->db->query("SELECT MAX(CustNum) 'max' FROM PUB.Customer");
+//            $result->setFetchMode(Phalcon\Db::FETCH_ASSOC);
+//            $custNumResul = $result->fetch();
+//            $result = $this->db->query("SELECT MAX(BillToId) 'max' FROM PUB.BillTo");
+//            $result->setFetchMode(Phalcon\Db::FETCH_ASSOC);
+//            $billToResult = $result->fetch();
+//            
+//            $bills = [];
+//            $billTo = new \FutureFoam\Model\BillTo();
+//            $customer = new \FutureFoam\Model\Customer();
+//            $customer->CustNum = $custNumResul['max'] + 1;
+//            //$customer->CustNum = 'PUB.NextCustNum.NEXTVAL';
+//            $customer->Name = 'Q3123';
+//            $customer->EmailAddress = 'test123@example.com';
+//            $customer->Fax = '12345';
+//            
+//            
+//            $billTo->BillToID = $billToResult['max'] + 1;
+//            //$billTo->CustNum = $customer->CustNum;
+//            $billTo->Name = 'Name : '.$billTo->CustNum.'--'.rand();
+//            $billTo->Contact = 'Contact :'. $billTo->CustNum.'--'.rand();
+//            $billTo->Customer = $customer;
             
-            $bills = [];
+           // $customer->setBills(array($billTo));
             
-            $customer = new \FutureFoam\Model\Customer();
-            $billTo = new \FutureFoam\Model\BillTo();
-            $customer->CustNum = $custNumResul['max'] + 1;
-            $customer->Name = 'Q3123';
-            $customer->EmailAddress = 'test123@example.com';
-            $customer->Fax = '12345';
+            //echo '<pre>';print_r($billTo);die;
+//            
+//            echo '<pre>';print_r($customer);
+//            
+//            die('done?');
+
             
-            
-            $billTo->BillToID = $billToResult['max'] + 1;
-            $billTo->CustNum = 123;
-            $billTo->Name = 'Name : '.$billTo->CustNum.'--'.rand();
-            $billTo->Contact = 'Contact :'. $billTo->CustNum.'--'.rand();
-            
-            $customer->Bills = array($billTo);
-            
-            if(!$customer->save()) {
-                foreach($customer->getMessages() as $message) {
-                    echo $message.'<br/>';
-                }
-            }        
+//            if(!$billTo->save()) {
+//                foreach($billTo->getMessages() as $message) {
+//                    echo $message.'<br/>';
+//                }
+//            }        
         echo PHP_EOL;
         /*****NEED TO REMOVE HARCODED "PUB." *****/
         die('script completed');

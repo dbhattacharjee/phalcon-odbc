@@ -66,7 +66,7 @@ class BillTo extends Model
             "FutureFoam\\Model\\Customer",
             "CustNum",
             [
-             'alias' => 'Customer',
+             'alias' => 'Customer'   
             ]
         );
     }

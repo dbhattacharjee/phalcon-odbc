@@ -143,7 +143,7 @@ class Progresssql extends \Phalcon\Db\Dialect //implements \Phalcon\Db\DialectIn
             throw new Phalcon\Db\Exception("The index 'tables' is required in the definition array");
         }
         foreach($tables as $key=>$table) {
-            $tables[$key] = 'PUB.'.$table;
+            $tables[$key] = $table[1].'.'.$table[0];
         }
 
         if (isset($definition['columns'])) {

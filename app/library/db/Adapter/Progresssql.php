@@ -277,14 +277,17 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
         $sql = str_replace('numrows', 'as "numrows"', $sql);
         $sql = str_replace(array('[rowcount]'), '"rowcount"', $sql);
         $sql = str_replace(array('[',']'), '', $sql);
-        echo $sql.'<br><br>';
-        print_r($bindParams);
-        echo '<br/><br/>';
+//        echo $sql.'<br><br>';
+//        print_r($bindParams);
+//        echo '<br/><br/>';
         
         if(stripos($sql, 'APL') !==false) {
             foreach($bindParams as $key=>$val) {
                 $sql = str_replace(':'.$key, $val, $sql);
             }
+        }
+        if(stripos($sql, 'INSERT') !==false) {
+            //echo $this->interpolateQuery($sql, $bindParams);
         }
         
         return parent::query($sql, $bindParams, $bindTypes);
@@ -619,30 +622,31 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
 
         //$insertSql = 'SET NOCOUNT ON; ' . $insertSql . '; SELECT CAST(SCOPE_IDENTITY() as int) as newid';
 
-
         /**
          * Perform the execution via PDO::execute
          */
+        
         $obj = $this->query($insertSql, $insertValues, $bindDataTypes);
         $ret = $obj->fetchAll();
-        if ($ret && isset($ret[0]) && isset($ret[0]['newid'])) {
-            $this->_lastID = $ret[0]['newid'];
-            if ($this->_lastID > 0) {
-                return true;
-            } else {
-                $this->_lastID = null;
-                return false;
-            }
-        } else {
-            $this->_lastID = null;
-            return false;
-        }
+        return true;
+//        if ($ret && isset($ret[0]) && isset($ret[0]['newid'])) {
+//            $this->_lastID = $ret[0]['newid'];
+//            if ($this->_lastID > 0) {
+//                return true;
+//            } else {
+//                $this->_lastID = null;
+//                return false;
+//            }
+//        } else {
+//            $this->_lastID = null;
+//            return false;
+//        }
     }
 
     public function update($table, $fields, $values, $whereCondition = null, $dataTypes = null) {
         $placeholders = array();
         $updateValues = array();
-        $table = 'PUB.'.$table;
+        $table = is_array($table)  ? $table[0].'.'.$table[1] : $table;
         $whereCondition = str_replace(array('[',']'), '', $whereCondition);
 
         if (is_array($dataTypes)) {

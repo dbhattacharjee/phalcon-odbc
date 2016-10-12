@@ -59,8 +59,6 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
         $matchOne;
         $columnName;
 
-        $table = is_array($table) ? $table['0'].'.'.$table['1'] : $table;
-
         /**
          * Get the SQL to describe a table
          * We're using FETCH_NUM to fetch the columns
@@ -592,8 +590,8 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
 
         if (false) { //globals_get("db.escape_identifiers") {
             $escapedTable = $this->escapeIdentifier($table);
-        } else { 
-            $escapedTable = is_array($table) ? $table['0'].'.'.$table['1'] : $table;
+        } else {
+            $escapedTable = 'PUB.'.$table;
         }
 
         /**
@@ -625,7 +623,6 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
         $obj = $this->query($insertSql, $insertValues, $bindDataTypes);
         $ret = $obj->fetchAll();
         return true;
-
         if ($ret && isset($ret[0]) && isset($ret[0]['newid'])) {
             $this->_lastID = $ret[0]['newid'];
             if ($this->_lastID > 0) {
@@ -643,7 +640,7 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
     public function update($table, $fields, $values, $whereCondition = null, $dataTypes = null) {
         $placeholders = array();
         $updateValues = array();
-        $table = is_array($table) ? $table['0'].'.'.$table['1'] : $table;
+        $table = 'PUB.'.$table;
         $whereCondition = str_replace(array('[',']'), '', $whereCondition);
 
         if (is_array($dataTypes)) {
@@ -769,7 +766,7 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
         if (false) { // globals_get("db.escape_identifiers") {
             $escapedTable = $this->escapeIdentifier($table);
         } else {
-            $escapedTable = is_array($table) ? $table['0'].'.'.$table['1'] : $table;
+            $escapedTable = 'PUB.'.$table;
         }
 
 

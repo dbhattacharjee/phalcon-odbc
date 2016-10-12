@@ -143,7 +143,7 @@ class Progresssql extends \Phalcon\Db\Dialect //implements \Phalcon\Db\DialectIn
             throw new Phalcon\Db\Exception("The index 'tables' is required in the definition array");
         }
         foreach($tables as $key=>$table) {
-            $tables[$key] = $table[1].'.'.$table[0];
+            $tables[$key] = 'PUB.'.$table;
         }
 
         if (isset($definition['columns'])) {
@@ -669,7 +669,7 @@ echo 'dropIndex';
         $sql = "select COUNT(*) from sysprogress.SYSTABLES WHERE tbl='".$tableName."'";
 
         if ($schemaName) {
-            $sql = $sql . "AND OWNER = '$schemaName'";
+            $sql = $sql . "AND TABLE_SCHEMA = '$schemaName'";
         }
         return $sql;
     }

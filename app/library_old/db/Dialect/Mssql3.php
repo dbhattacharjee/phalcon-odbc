@@ -3,12 +3,12 @@
 // original work: https://github.com/fishjerky/phalcon-mssql
 // modified by Davide Airaghi (www.airaghi.net) to use with SQL Server 2008 and Microsoft SQL Server PDO driver
 // version: 0.1
-// PhalconPHP: starting from version 2.0.x
+// PhalconPHP: starting from version 3.0.x
 // Note: rename this file to Mssql.php before using it
 
-namespace FutureFoam\PhalconPHP\PROGRESSQQL\Dialect;
+namespace Airaghi\PhalconPHP\MSSQL\Dialect;
 
-class Progresssql extends \Phalcon\Db\Dialect //implements \Phalcon\Db\DialectInterface
+class Mssql extends \Phalcon\Db\Dialect //implements \Phalcon\Db\DialectInterface
 {
 
 	/*
@@ -25,7 +25,6 @@ class Progresssql extends \Phalcon\Db\Dialect //implements \Phalcon\Db\DialectIn
 	);
 
 	protected function do_translate($sql) {
-            echo 'trans';
 		foreach ($this->functions_translate as $find=>$replace) {
 			$sql = str_ireplace($find,$replace,$sql);
 		}
@@ -34,22 +33,19 @@ class Progresssql extends \Phalcon\Db\Dialect //implements \Phalcon\Db\DialectIn
 	
     public function limit($sqlQuery, $number)
     {
-        echo 'limit';
         $sql = preg_replace('/^SELECT\s/i', 'SELECT TOP ' . $number . ' ', $sqlQuery);
         return $sql;
     }
 
     public function forUpdate($sqlQuery)
     {
-        echo '*1';
         $sql = $sqlQuery . ' WITH (UPDLOCK) ';
         return $sql;
     }
 
     public function shareLock($sqlQuery)
     {
-        echo '*2'; 
-        $sql = $sqlQuery . ' WITH (NOLOCK) ';
+         $sql = $sqlQuery . ' WITH (NOLOCK) ';
          return $sql;
     }
 
@@ -79,7 +75,6 @@ class Progresssql extends \Phalcon\Db\Dialect //implements \Phalcon\Db\DialectIn
 
     protected function escaping($item, $escapeChar)
     {
-        echo 'esc';
         if (is_array($escapeChar)) {
             return $escapeChar[0] . $item . $escapeChar[1];
         } else {
@@ -90,7 +85,7 @@ class Progresssql extends \Phalcon\Db\Dialect //implements \Phalcon\Db\DialectIn
 	// public function select($definition) // 1.x
 	public function select(array $definition) // 2.x
     {
-            echo 'sele';
+
         $tables;
         $columns;
         $escapeChar;
@@ -128,10 +123,7 @@ class Progresssql extends \Phalcon\Db\Dialect //implements \Phalcon\Db\DialectIn
         $limitValue;
         $number;
         $offset;
-        
-//        echo '<pre>';
-//        print_r(func_get_args());
-//        echo '<br>***<br/>';
+
 		
         if (!is_array($definition)) {
             throw new Phalcon\Db\Exception("Invalid SELECT definition");
@@ -141,9 +133,6 @@ class Progresssql extends \Phalcon\Db\Dialect //implements \Phalcon\Db\DialectIn
             $tables = $definition["tables"];
         } else {
             throw new Phalcon\Db\Exception("The index 'tables' is required in the definition array");
-        }
-        foreach($tables as $key=>$table) {
-            $tables[$key] = $table[1].'.'.$table[0];
         }
 
         if (isset($definition['columns'])) {
@@ -239,7 +228,7 @@ class Progresssql extends \Phalcon\Db\Dialect //implements \Phalcon\Db\DialectIn
             $tablesSql = $tables;
         }
 
-        $sql = "SELECT $columnsSql FROM $tablesSql ";
+        $sql = "SELECT $columnsSql FROM /*tbl*/ $tablesSql ";
         
 
         /**
@@ -340,7 +329,7 @@ class Progresssql extends \Phalcon\Db\Dialect //implements \Phalcon\Db\DialectIn
 				}
             }
             if (count($orderItems)) {
-                $sqlOrder =  " ORDER BY  " . join(", ", $orderItems);
+                $sqlOrder =  " ORDER BY /*rdr*/ " . join(", ", $orderItems);
             }
 
             if ($nolock) {
@@ -357,14 +346,11 @@ class Progresssql extends \Phalcon\Db\Dialect //implements \Phalcon\Db\DialectIn
 		/**
 		 * Check for a LIMIT condition - OLD
 		 */
+		
 		$limitValue = isset( $definition["limit"] ) ? $definition["limit"] : null;
 		if (isset($limitValue)) {
 			if (is_array($limitValue)) {
-				//$number = str_replace(':APL', '', $limitValue["number"]['value']);
-                                $number = $limitValue["number"]['value'];
-                                if(!$number) {
-                                    $number = 1;
-                                }
+				$number = $limitValue["number"]['value'];
 				$order = 'ORDER BY id';
 				if (preg_match('/\ ORDER\ BY\ \/\*rdr\*\/\ (.*)$/i',$sql,$orx)) {
 					$orx = $orx[1];
@@ -443,7 +429,7 @@ class Progresssql extends \Phalcon\Db\Dialect //implements \Phalcon\Db\DialectIn
 		// at this point we can do some "magic" ...
 		$sql = $this->do_translate($sql);
 		
-		 //echo $sql.'<br><br>'; 
+		// echo $sql.'<br><br>'; 
 		// echo '<pre>'; print_r($definition); echo '</pre><br><br>';
 		return $sql;
 	}
@@ -463,8 +449,7 @@ class Progresssql extends \Phalcon\Db\Dialect //implements \Phalcon\Db\DialectIn
     // public function getColumnDefinition($column) // 1.x
 	public function getColumnDefinition(\Phalcon\Db\ColumnInterface $column)  // 2.x
     {
-            echo 'col';
-            $columnSql;
+        $columnSql;
         $size;
         $scale;
         if (!is_object($column)) {
@@ -515,8 +500,7 @@ class Progresssql extends \Phalcon\Db\Dialect //implements \Phalcon\Db\DialectIn
 	// public function addColumn($tableName, $schemaName, $column) // 1.x
 	public function addColumn($tableName, $schemaName, \Phalcon\Db\ColumnInterface $column) // 2.x
     {
-        echo 'addcol';
-            $afterPosition;
+        $afterPosition;
         $sql;
 
         if (!is_object($column)) {
@@ -574,7 +558,6 @@ class Progresssql extends \Phalcon\Db\Dialect //implements \Phalcon\Db\DialectIn
 
     public function dropColumn($tableName, $schemaName, $columnName)
     {
-        echo 'dropcol';
         $sql;
 
         if ($schemaName) {
@@ -596,8 +579,7 @@ class Progresssql extends \Phalcon\Db\Dialect //implements \Phalcon\Db\DialectIn
     // public function addIndex($tableName, $schemaName, $index) // 1.x
 	public function addIndex($tableName, $schemaName, \Phalcon\Db\IndexInterface $index) // 2.x
     {
-        echo 'addIndex';
-            $sql;
+        $sql;
         if (!is_object($index)) {
             throw new Phalcon\Db\Exception("Index parameter must be an object compatible with Phalcon\\Db\\IndexInterface");
         }
@@ -618,7 +600,6 @@ class Progresssql extends \Phalcon\Db\Dialect //implements \Phalcon\Db\DialectIn
      */
     public function dropIndex($tableName, $schemaName, $indexName)
     {
-echo 'dropIndex';
         $sql;
 
         if ($schemaName) {
@@ -649,7 +630,6 @@ echo 'dropIndex';
     }
     public function dropPrimaryKey($tableName, $schemaName)
     {
-        echo 'dropPK';
         $sql;
         if ($schemaName) {
             $sql = "ALTER TABLE [" . $schemaName . "].[" . $tableName . "] DROP PRIMARY KEY ";
@@ -665,11 +645,10 @@ echo 'dropIndex';
 
     public function tableExists($tableName, $schemaName = null)
     {
-        //$sql = "SELECT COUNT(*) FROM [INFORMATION_SCHEMA].[TABLES] WHERE [TABLE_NAME] = '$tableName' ";
-        $sql = "select COUNT(*) from sysprogress.SYSTABLES WHERE tbl='".$tableName."'";
+        $sql = "SELECT COUNT(*) FROM [INFORMATION_SCHEMA].[TABLES] WHERE [TABLE_NAME] = '$tableName' ";
 
         if ($schemaName) {
-            $sql = $sql . "AND OWNER = '$schemaName'";
+            $sql = $sql . "AND TABLE_SCHEMA = '$schemaName'";
         }
         return $sql;
     }
@@ -683,7 +662,6 @@ echo 'dropIndex';
      */
     public function viewExists($viewName, $schemaName = null)
     {
-        echo 'viewE';
         if ($schemaName) {
             return "SELECT COUNT(*) FROM INFORMATION_SCHEMA.VIEWS WHERE table_name = '$viewName' and table_schema = '$schemaName'";
         }
@@ -699,8 +677,7 @@ echo 'dropIndex';
            $sql = $sql . "AND TABLE_SCHEMA = '$schemaName'";
            }
          */
-        //$sql = "exec sp_columns [$table]";
-        $sql = "select * from sysprogress.SYSCOLUMNS_FULL where TBL = '".$table."'";
+        $sql = "exec sp_columns [$table]";
         return $sql;
     }
 
@@ -711,7 +688,6 @@ echo 'dropIndex';
      */
     public function listTables($schemaName = null)
     {
-        echo 'listTa';
         //$sql =  "SELECT name FROM sysobjects WHERE type = 'U' ORDER BY name";
         $sql = "SELECT table_name FROM [INFORMATION_SCHEMA].[TABLES] ";
         if ($schemaName) {
@@ -728,7 +704,6 @@ echo 'dropIndex';
      */
     public function listViews($schemaName = null)
     {
-        echo 'listView';
         if ($schemaName) {
             return "SELECT [TABLE_NAME] AS view_name FROM [INFORMATION_SCHEMA].[VIEWS] WHERE `TABLE_SCHEMA` = '" . $schemaName . "' ORDER BY view_name";
         }
@@ -746,8 +721,7 @@ echo 'dropIndex';
     // public function createView($viewName, $definition, $schemaName) // 1.x
 	public function createView($viewName, array $definition, $schemaName = NULL)  // 2.x
     {
-        echo 'createView';
-            $view;
+        $view;
         $viewSql;
 
         if (!isset($definition['sql'])) {
@@ -775,8 +749,7 @@ echo 'dropIndex';
     // public function dropView($viewName, $schemaName, $ifExists = true) // 1.x
 	public function dropView($viewName, $schemaName = NULL, $ifExists = NULL) // 2.x
     {
-     echo 'dropV';
-            $sql="";
+        $sql="";
         $view;
 
         if ($schemaName) {
@@ -807,7 +780,6 @@ echo 'dropIndex';
      */
     public function describeIndexes($table, $schema = null)
     {
-        echo 'descIndex';
         $sql = "SELECT * FROM sys.indexes ind INNER JOIN sys.tables t ON ind.object_id = t.object_id WHERE t.name = '$table' ";
         if ($schema) {
             //$sql .= "AND t."
@@ -824,7 +796,6 @@ echo 'dropIndex';
      */
     public function describeReferences($table, $schema = null)
     {
-        echo 'descRef';
         $sql = "SELECT TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME,REFERENCED_TABLE_SCHEMA,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_NAME IS NOT NULL AND ";
         if ($schema) {
             $sql .= "CONSTRAINT_SCHEMA = '" . $schema . "' AND TABLE_NAME = '" . $table . "'";
@@ -844,7 +815,6 @@ echo 'dropIndex';
      */
     public function tableOptions($table, $schema = null)
     {
-        echo 'tableOpt';
         $sql = "SELECT TABLES.TABLE_TYPE AS table_type,TABLES.AUTO_INCREMENT AS auto_increment,TABLES.ENGINE AS engine,TABLES.TABLE_COLLATION AS table_collation FROM INFORMATION_SCHEMA.TABLES WHERE ";
         if ($schema) {
             $sql .= "TABLES.TABLE_SCHEMA = '" . $schema . "' AND TABLES.TABLE_NAME = '" . $table . "'";

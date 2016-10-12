@@ -1,6 +1,7 @@
 <?php
 namespace FutureFoam\Model;
 use Phalcon\Mvc\Model;
+use Phalcon\Mvc\Model\Relation;
 
 class Customer extends Model
 {
@@ -99,6 +100,7 @@ class Customer extends Model
     public function initialize()
     {
         $this->setSource("Customer");
+        $this->getModelsManager()->setModelSchema($this, 'PUB');
         //$this->skipAttributesOnCreate(array('CustNum'));
         $this->hasMany(
             "CustNum",
@@ -106,6 +108,9 @@ class Customer extends Model
             "CustNum",
             [
              'alias' => 'Bills',
+             "foreignKey" => [
+                    "action" => Relation::ACTION_CASCADE,
+                ],
             ]
         );
     }

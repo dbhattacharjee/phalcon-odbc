@@ -60,14 +60,13 @@ class BillTo extends Model
     public function initialize()
     {
         $this->setSource("BillTo");
-        $this->getModelsManager()->setModelSchema($this, 'PUB');
         
         $this->belongsTo(
             "CustNum",
             "FutureFoam\\Model\\Customer",
             "CustNum",
             [
-             'alias' => 'Customer'   
+             'alias' => 'Customer',
             ]
         );
     }

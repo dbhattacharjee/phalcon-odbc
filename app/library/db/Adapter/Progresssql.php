@@ -277,14 +277,19 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
             $sql = str_replace('"', '', $sql);
         }
         $sql = str_replace('numrows', 'as "numrows"', $sql);
-        $sql = str_replace('[rowcount]', '"rowcount"', $sql);
-        echo $sql.'<br><br>';
-        print_r($bindParams);
+        $sql = str_replace(array('[rowcount]'), '"rowcount"', $sql);
+        $sql = str_replace(array('[',']'), '', $sql);
+//        echo $sql.'<br><br>';
+//        print_r($bindParams);
+//        echo '<br/><br/>';
         
         if(stripos($sql, 'APL') !==false) {
             foreach($bindParams as $key=>$val) {
                 $sql = str_replace(':'.$key, $val, $sql);
             }
+        }
+        if(stripos($sql, 'INSERT') !==false) {
+            //echo $this->interpolateQuery($sql, $bindParams);
         }
         
         return parent::query($sql, $bindParams, $bindTypes);
@@ -543,6 +548,7 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
         $field;
         $insertSql;
         
+        
         if (!is_array($values)) {
             throw new \Phalcon\Db\Exception("The second parameter for insert isn't an Array");
         }
@@ -592,8 +598,8 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
 
         if (false) { //globals_get("db.escape_identifiers") {
             $escapedTable = $this->escapeIdentifier($table);
-        } else { 
-            $escapedTable = is_array($table) ? $table['0'].'.'.$table['1'] : $table;
+        } else {
+            $escapedTable =  is_array($table) ? $table[0].'.'.$table[1] :  'PUB.'.$table;
         }
 
         /**
@@ -618,32 +624,31 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
 
         //$insertSql = 'SET NOCOUNT ON; ' . $insertSql . '; SELECT CAST(SCOPE_IDENTITY() as int) as newid';
 
-
         /**
          * Perform the execution via PDO::execute
          */
+        
         $obj = $this->query($insertSql, $insertValues, $bindDataTypes);
         $ret = $obj->fetchAll();
         return true;
-
-        if ($ret && isset($ret[0]) && isset($ret[0]['newid'])) {
-            $this->_lastID = $ret[0]['newid'];
-            if ($this->_lastID > 0) {
-                return true;
-            } else {
-                $this->_lastID = null;
-                return false;
-            }
-        } else {
-            $this->_lastID = null;
-            return false;
-        }
+//        if ($ret && isset($ret[0]) && isset($ret[0]['newid'])) {
+//            $this->_lastID = $ret[0]['newid'];
+//            if ($this->_lastID > 0) {
+//                return true;
+//            } else {
+//                $this->_lastID = null;
+//                return false;
+//            }
+//        } else {
+//            $this->_lastID = null;
+//            return false;
+//        }
     }
 
     public function update($table, $fields, $values, $whereCondition = null, $dataTypes = null) {
         $placeholders = array();
         $updateValues = array();
-        $table = is_array($table) ? $table['0'].'.'.$table['1'] : $table;
+        $table = is_array($table)  ? $table[0].'.'.$table[1] : $table;
         $whereCondition = str_replace(array('[',']'), '', $whereCondition);
 
         if (is_array($dataTypes)) {
@@ -954,6 +959,7 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
      * the PDO driver for MSSQL does not support transactions.
      */
     public function begin($nesting = false) {
+        echo 'begin<br/>';
         //						$this->execute('SET QUOTED_IDENTIFIER OFF');
         //						$this->execute('SET NOCOUNT OFF');
         $this->execute('BEGIN TRANSACTION;');
@@ -967,6 +973,7 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
      * the PDO driver for MSSQL does not support transactions.
      */
     public function commit($nesting = false) {
+        echo 'commit<br>';
         $this->execute('COMMIT TRANSACTION');
         return true;
     }
@@ -978,26 +985,30 @@ class Progresssql extends AdapterPdo implements EventsAwareInterface, AdapterInt
      * the PDO driver for MSSQL does not support transactions.
      */
     public function rollBack($nesting = false) {
+        echo 'rollback<br/>';
         $this->execute('ROLLBACK TRANSACTION');
         return true;
     }
 
     public function getTransactionLevel() {
+        echo 'transactionlevel<br/>';
         return (int) $this->fetchOne('SELECT @@TRANCOUNT as level');
     }
     
     public static function start() {
+        echo 'start';
         
     }
     public static function render() {
+        echo 'render';
         
     }
     public static function finish() {
-        
+        echo 'finish';
     }
     
     public static function getcontent() {
-        
+        echo 'getcontent';
     }
     
     public function findPrimaryKeys($table)
